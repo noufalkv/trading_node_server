@@ -54,13 +54,22 @@ const isTradingHour = () => {
 const app = express();
 app.use(express.json());
 
+// Configure CORS for Express app
+app.use(cors({
+  origin: process.env.WEBSERVER_URI ? process.env.WEBSERVER_URI.split(',').map(url => url.trim()) : ["http://localhost:3001", "http://localhost:3000"],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "access_token"],
+  credentials: true,
+  optionsSuccessStatus: 200
+}));
+
 const httpServer = createServer();
 
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.WEBSERVER_URI || "http://localhost:3001",
+    origin: process.env.WEBSERVER_URI ? process.env.WEBSERVER_URI.split(',').map(url => url.trim()) : ["http://localhost:3001", "http://localhost:3000"],
     methods: ["GET", "POST"],
-    allowedHeaders: ["access_token"],
+    allowedHeaders: ["Content-Type", "Authorization", "access_token"],
     credentials: true,
   },
 });
@@ -149,7 +158,6 @@ app.use("/auth", authRouter);
 app.use("/stocks", authenticateSocketUser, stockRouter);
 
 // MIDDLEWARES
-app.use(cors());
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 
