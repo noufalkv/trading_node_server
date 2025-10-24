@@ -8,7 +8,7 @@ import {
 import authenticateUser from "../middleware/authentication.js";
 import { checkEmail } from "../controllers/auth/email.js";
 import { signInWithOauth } from "../controllers/auth/oauth.js";
-import { verifyOtp, sendOtp } from "../controllers/auth/Otp.js";
+import { verifyOtp, sendOtp } from "../controllers/auth/otp.js";
 import {
   getProfile,
   setLoginPinFirst,
