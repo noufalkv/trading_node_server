@@ -128,7 +128,7 @@ io.on("connection", (socket) => {
 });
 
 // Log WebSocket server status
-httpServer.listen(process.env.SOCKET_PORT || 4000, () => {
+httpServer.listen(process.env.SOCKET_PORT || 4000, '0.0.0.0', () => {
   console.log(
     "WebSocket server is running and listening on port 🔌🔌🔌",
     httpServer.address().port
@@ -159,7 +159,7 @@ const start = async () => {
   try {
     await connectDB(process.env.MONGO_URI);
     const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () =>
+    app.listen(PORT, '0.0.0.0', () =>
       console.log(`Server is listening on port ${PORT}....`)
     );
   } catch (error) {
