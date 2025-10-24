@@ -1,5 +1,5 @@
 # Use Node.js official Alpine image for smaller size
-FROM node:18-alpine
+FROM node:22-alpine
 
 # Set working directory
 WORKDIR /app
@@ -10,7 +10,7 @@ COPY package*.json ./
 # Set npm registry to default and install dependencies
 RUN npm config set registry https://registry.npmjs.org/ && \
     npm cache clean --force && \
-    npm install --only=production && \
+    npm install && \
     npm cache clean --force
 
 # Copy source code
