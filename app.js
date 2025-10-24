@@ -56,23 +56,38 @@ const app = express();
 // Configure CORS for Express app - MUST be before other middleware
 const corsOptions = {
   origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
+    // In development, allow all origins
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`✅ CORS: Development mode - allowing all origins. Origin: ${origin || 'none'}`);
+      return callback(null, true);
+    }
+    
+    // In production, check against whitelist
+    if (!origin) {
+      console.log('✅ CORS: No origin header (allowing - curl/mobile/tools)');
+      return callback(null, true);
+    }
     
     const allowedOrigins = process.env.WEBSERVER_URI 
       ? process.env.WEBSERVER_URI.split(',').map(url => url.trim()) 
-      : ["http://localhost:3001", "http://localhost:3000", "http://localhost"];
+      : [];
     
-    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
+    console.log(`📍 CORS: Incoming origin: ${origin}`);
+    console.log(`📍 CORS: Allowed origins: ${JSON.stringify(allowedOrigins)}`);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      console.log('✅ CORS: Allowed');
       callback(null, true);
     } else {
+      console.log('❌ CORS: Denied');
       callback(new Error('Not allowed by CORS'));
     }
   },
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "access_token"],
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  maxAge: 3600
 };
 
 app.use(cors(corsOptions));
