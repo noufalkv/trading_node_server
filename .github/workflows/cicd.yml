@@ -18,13 +18,13 @@ jobs:
       - name: Publish Image to docker hub
         run: docker push noufalkv/trading_server:latest
 
-  # deploy:
-  #   needs: build
-  #   runs-on: self-hosted
-  #   steps:
-  #     - name: Pull image from docker hub
-  #       run: docker pull noufalkv/nodejs-app-ec2:latest
-  #     - name: Delete old container
-  #       run: docker rm -f nodejs-app-container
-  #     - name: Run Docker Container
-  #       run: docker run -d -p 4000:4000 --name nodejs-app-container -e MONGO_PASSWORD='${{ secrets.MONGO_PASSWORD }}' noufalkv/nodejs-app-ec2
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    steps:
+      - name: Pull image from docker hub
+        run: docker pull noufalkv/trading_server:latest
+      - name: Delete old container
+        run: docker rm -f nodejs-app-container
+      - name: Run Docker Container
+        run: docker run -d -p 4000:4000 --name nodejs-app-container -e MONGO_PASSWORD='${{ secrets.MONGO_PASSWORD }}' noufalkv/trading_server
