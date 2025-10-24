@@ -52,26 +52,36 @@ const isTradingHour = () => {
 };
 
 const app = express();
-app.use(express.json());
 
-// Configure CORS for Express app
-app.use(cors({
-  origin: process.env.WEBSERVER_URI ? process.env.WEBSERVER_URI.split(',').map(url => url.trim()) : ["http://localhost:3001", "http://localhost:3000"],
+// Configure CORS for Express app - MUST be before other middleware
+const corsOptions = {
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = process.env.WEBSERVER_URI 
+      ? process.env.WEBSERVER_URI.split(',').map(url => url.trim()) 
+      : ["http://localhost:3001", "http://localhost:3000", "http://localhost"];
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "access_token"],
   credentials: true,
   optionsSuccessStatus: 200
-}));
+};
+
+app.use(cors(corsOptions));
+app.use(express.json());
 
 const httpServer = createServer();
 
 const io = new Server(httpServer, {
-  cors: {
-    origin: process.env.WEBSERVER_URI ? process.env.WEBSERVER_URI.split(',').map(url => url.trim()) : ["http://localhost:3001", "http://localhost:3000"],
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type", "Authorization", "access_token"],
-    credentials: true,
-  },
+  cors: corsOptions,
 });
 io.use(socketHandshake);
 
