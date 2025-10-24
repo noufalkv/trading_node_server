@@ -176,7 +176,26 @@ app.get("/", (req, res) => {
 //SWAGGER API DOCS
 
 const swaggerDocument = YAML.load(join(__dirname, "./docs/swagger.yaml"));
-app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+
+// Dynamically set the server URL based on the request
+app.get("/api-docs/swagger.json", (req, res) => {
+  const protocol = req.protocol;
+  const host = req.get('host');
+  const swaggerWithDynamicServer = {
+    ...swaggerDocument,
+    servers: [
+      {
+        url: `${protocol}://${host}`,
+        description: 'Current server'
+      }
+    ]
+  };
+  res.json(swaggerWithDynamicServer);
+});
+
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(null, {
+  swaggerUrl: "/api-docs/swagger.json"
+}));
 
 // ROUTES
 app.use("/auth", authRouter);
