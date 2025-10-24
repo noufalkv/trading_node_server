@@ -26,7 +26,42 @@ jobs:
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
       - name: Pull image from docker hub
         run: docker pull noufalkv/trading_server:latest
-      - name: Delete old container
-        run: docker rm -f nodejs-app-container
+      - name: Stop and remove old container
+        run: |
+          docker stop nodejs-app-container || true
+          docker rm nodejs-app-container || true
       - name: Run Docker Container
-        run: docker run -d -p 4000:4000 --name nodejs-app-container -e MONGO_PASSWORD='${{ secrets.MONGO_PASSWORD }}' noufalkv/trading_server
+        run: |
+          docker run -d -p 4000:4000 --name nodejs-app-container \
+            -e MONGO_URI='${{ secrets.MONGO_URI }}' \
+            -e JWT_SECRET='${{ secrets.JWT_SECRET }}' \
+            -e ACCESS_TOKEN_EXPIRY='${{ secrets.ACCESS_TOKEN_EXPIRY }}' \
+            -e REFRESH_TOKEN_SECRET='${{ secrets.REFRESH_TOKEN_SECRET }}' \
+            -e REFRESH_TOKEN_EXPIRY='${{ secrets.REFRESH_TOKEN_EXPIRY }}' \
+            -e MAIL_HOST='${{ secrets.MAIL_HOST }}' \
+            -e MAIL_USER='${{ secrets.MAIL_USER }}' \
+            -e MAIL_PASS='${{ secrets.MAIL_PASS }}' \
+            -e MAIL_PORT='${{ secrets.MAIL_PORT }}' \
+            -e MAIL_FROM='${{ secrets.MAIL_FROM }}' \
+            -e REGISTER_SECRET='${{ secrets.REGISTER_SECRET }}' \
+            -e REGISTER_SECRET_EXPIRY='${{ secrets.REGISTER_SECRET_EXPIRY }}' \
+            -e SOCKET_TOKEN_SECRET='${{ secrets.SOCKET_TOKEN_SECRET }}' \
+            -e SOCKET_TOKEN_EXPIRY='${{ secrets.SOCKET_TOKEN_EXPIRY }}' \
+            -e REFRESH_SOCKET_TOKEN_SECRET='${{ secrets.REFRESH_SOCKET_TOKEN_SECRET }}' \
+            -e REFRESH_SOCKET_TOKEN_EXPIRY='${{ secrets.REFRESH_SOCKET_TOKEN_EXPIRY }}' \
+            -e GOOGLE_CLIENT_ID='${{ secrets.GOOGLE_CLIENT_ID }}' \
+            -e NODE_ENV=production \
+            --restart unless-stopped \
+            noufalkv/trading_server:latest
+      
+      - name: Verify deployment
+        run: |
+          sleep 10
+          if docker ps | grep -q nodejs-app-container; then
+            echo "✅ Container is running successfully"
+            docker logs nodejs-app-container --tail 20
+          else
+            echo "❌ Container failed to start"
+            docker logs nodejs-app-container || true
+            exit 1
+          fi
