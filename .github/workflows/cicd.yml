@@ -14,9 +14,9 @@ jobs:
       - name: Login to docker hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
       - name: Build Docker Image
-        run: docker build -t noufalkv/nodejs-app-ec2  .
+        run: docker build -t noufalkv/trading_server  .
       - name: Publish Image to docker hub
-        run: docker push noufalkv/nodejs-app-ec2:latest
+        run: docker push noufalkv/trading_server:latest
 
   # deploy:
   #   needs: build
