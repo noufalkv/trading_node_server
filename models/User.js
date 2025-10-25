@@ -31,12 +31,16 @@ const UserScehma = new mongoose.Schema(
     },
     phone_number: {
       type: String,
-      match: [
-        /^[0-9]{10}$/,
-        "Please provide a 10-digit phone number without spaces or special characters",
-      ],
       unique: true,
       sparse: true,
+      validate: {
+        validator: function(v) {
+          // Only validate if phone_number is provided (not null/undefined/empty)
+          if (!v) return true; // Allow null/undefined/empty values
+          return /^[0-9]{10}$/.test(v);
+        },
+        message: "Please provide a 10-digit phone number without spaces or special characters"
+      }
     },
     date_of_brith: Date,
     biometricKey: String,
