@@ -18,6 +18,7 @@ export const mailSender = async (email, otp, otp_type) => {
     let transporter = nodemailer.createTransport({
       host: process.env.MAIL_HOST,
       port: process.env.MAIL_PORT,
+      service: process.env.SMTP_SERVICE,
       secure: false,
       auth: {
         user: process.env.MAIL_USER,
@@ -38,6 +39,8 @@ export const mailSender = async (email, otp, otp_type) => {
     throw error;
   }
 };
+
+
 
 export const generateOTP = async () => {
   const otp = otpGenerator.generate(6, {

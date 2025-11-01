@@ -5,7 +5,7 @@ import OTP from "../../models/Otp.js";
 import { generateOTP } from "../../services/mailSender.js";
 
 const checkEmail = async (req, res) => {
-  const { email } = req.body;
+   const { email } = req.body;
   if (!email) {
     throw new BadRequestError("Email is required");
   }
